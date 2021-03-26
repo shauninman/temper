@@ -1,5 +1,11 @@
 #include "common.h"
 
+#ifdef TRIMUI_BUILD
+void* mmenu = NULL;
+char rom_path[MAX_PATH];
+char state_path[MAX_PATH];
+#endif
+
 u32 isrunning = 1;
 
 void setup_main_dirs()
@@ -15,6 +21,10 @@ void setup_main_dirs()
 	snprintf(config_path, MAX_PATH, "%s/%s", config.main_path, "config"); 
 	snprintf(images_path, MAX_PATH, "%s/%s", config.main_path, "images"); 
 	snprintf(sys_path, MAX_PATH, "%s/%s", config.main_path, "syscards"); 
+	
+	#ifdef TRIMUI_BUILD
+	strcpy(state_path, save_path);
+	#endif
 	
 	if(stat(config.main_path, &sb))
 	{
@@ -323,7 +333,11 @@ int main(int argc, char *argv[])
   if((argc > 1) && (argv[argc - 1][0] != '-'))
   {
     printf("Loading ROM %s\n", argv[argc - 1]);
-  
+	
+	#ifdef TRIMUI_BUILD
+	strcpy(rom_path, argv[argc - 1]);
+	#endif
+	
 	if (strstr(argv[1], ".bin") || strstr(argv[1], ".iso") )
 	{
 		return 1;
@@ -370,6 +384,14 @@ int main(int argc, char *argv[])
   if(netplay.pause == 0)
     audio_unpause();
 
+#ifdef TRIMUI_BUILD
+  mmenu = dlopen("libmmenu.so", RTLD_LAZY);
+  if (mmenu) {
+	  printf("Loaded libmmenu.so\n");
+	  fflush(stdout);
+  }
+#endif
+  
   while(isrunning)
   {
     if(netplay.active && netplay.pause)
@@ -1251,6 +1273,8 @@ void quit()
 
 void status_message_raw(char *message)
 {
+	return; 
+	
   if(config.status_message_lines == STATUS_MESSAGE_LINES)
   {
     u32 i;

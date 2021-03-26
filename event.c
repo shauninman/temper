@@ -129,9 +129,45 @@ void update_events(void)
       {
         switch(config_button_action)
         {
-          case CONFIG_BUTTON_MENU:
-            menu(0);
+          case CONFIG_BUTTON_MENU: {
+			  #ifdef TRIMUI_BUILD
+			  if (mmenu) {
+			  	ShowMenu_t ShowMenu = (ShowMenu_t)dlsym(mmenu, "ShowMenu");
+			    char save_path[MAX_PATH];
+			    sprintf(save_path, "%s/%s_%%i.svs", state_path, config.rom_filename);
+				printf("\nsave_path: %s\n\n", save_path);
+			  	MenuReturnStatus status = ShowMenu(rom_path, save_path, screen, kMenuEventKeyDown);
+
+			  	if (status==kStatusExitGame) {
+					isrunning = 0;
+			  	}
+			  	else if (status==kStatusOpenMenu) {
+			  		menu(0);
+			  	}
+			  	else if (status>=kStatusLoadSlot) {
+			  		config.savestate_number = status - kStatusLoadSlot;
+					char state_name[MAX_PATH];
+		            sprintf(state_name, "%s_%d.svs", config.rom_filename, config.savestate_number);
+		            load_state(state_name, NULL, 0);
+			  	}
+			  	else if (status>=kStatusSaveSlot) {
+			  		config.savestate_number = status - kStatusSaveSlot;
+		            char state_name[MAX_PATH];
+		            sprintf(state_name, "%s_%d.svs", config.rom_filename, config.savestate_number);
+	                u16 *screen_capture = malloc(320 * 240 * sizeof(u16));
+	                copy_screen(screen_capture, 320, 240);
+	                save_state(state_name, screen_capture);
+	                free(screen_capture);
+			  	}
+			  }
+			  else {
+			  	menu(0);
+			  }
+			#else
+			  menu(0);
+			#endif
             return;
+			}
 
           case CONFIG_BUTTON_LOAD_STATE:
           {

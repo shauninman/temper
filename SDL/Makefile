@@ -31,7 +31,8 @@ CFLAGS		+= -fdata-sections -ffunction-sections -fno-PIC -flto -fno-math-errno
 INCLUDES   	= 
 
 #LIBS		= -nodefaultlibs
-LIBS    	+= -lc -lgcc -lSDL -lasound -lz -lm -lbz2 -pthread -Wl,--sort-common,--as-needed,--gc-sections -flto -s
+LIBS    	+= -lc -lgcc -lSDL -lasound -lz -lm -lbz2 -pthread -Wl,--sort-common,--gc-sections -flto -s
+LIBS		+= -lSDL_image -lSDL_ttf -ldl
 
 ifeq ($(PROFILE), YES)
 LIBS 		+= -lgcov

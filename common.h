@@ -314,3 +314,16 @@ extern u32 isrunning;
 
 #endif
 
+#ifdef TRIMUI_BUILD
+
+#include "SDL/SDL_screen.h"
+extern SDL_Surface *screen;
+
+#include <dlfcn.h>
+#include <mmenu.h>
+extern void* mmenu;
+extern char rom_path[MAX_PATH];
+extern char state_path[MAX_PATH];
+
+
+#endif
