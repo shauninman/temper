@@ -2,37 +2,54 @@
 # Gilead Kutnick - Exophase
 
 # Global definitions
+CROSS_COMPILE := /opt/trimui-toolchain/bin/arm-buildroot-linux-gnueabi-
+AS        = $(CROSS_COMPILE)gcc
+CC        = $(CROSS_COMPILE)gcc
+STRIP     = $(CROSS_COMPILE)strip --strip-all --remove-section=.comment --remove-section=.note
 
-CC        = gcc
-STRIP     = strip
-
-PREFIX    = /usr
-OBJS      = main.o cpu.o memory.o irq.o io.o video.o timer.o psg.o disasm.o    \
-            screen.o event.o audio.o menu.o debug.o cd.o adpcm.o netplay.o     \
-            arcade_card.o bin_cue.o                                            \
-            SDL_main.o SDL_screen.o SDL_audio.o SDL_event.o SDL_menu.o crc32.o
+OBJS      = ../main.o ../cpu.o ../memory.o ../irq.o ../io.o ../video.o ../timer.o ../psg.o ../disasm.o \
+            ../screen.o ../event.o ../audio.o ../menu.o ../debug.o ../cd.o ../adpcm.o ../netplay.o \
+            ../arcade_card.o ../bin_cue.o \
+            SDL_main.o SDL_screen.o SDL_event.o SDL_menu.o SDL_audio.o ../crc32.o \
+            ../tremor/bitwise.o ../tremor/block.o ../tremor/codebook.o ../tremor/floor0.o ../tremor/floor1.o ../tremor/framing.o \
+            ../tremor/info.o ../tremor/mapping0.o ../tremor/mdct.o ../tremor/registry.o ../tremor/res012.o ../tremor/sharedbook.o \
+            ../tremor/synthesis.o ../tremor/vorbisfile.o ../tremor/window.o
 BIN       ?= temper 
+PROFILE = 0
 
-# Platform specific definitions 
+ifeq ($(PROFILE), YES)
+CFLAGS 		+= -fprofile-generate -fprofile-dir=/mnt/SDCARD/profile/temper
+else ifeq ($(PROFILE), APPLY)
+CFLAGS		+= -fprofile-use -fbranch-probabilities
+endif
 
-VPATH      += .. ../SDL ../linux
-CFLAGS     += -DLINUX_X86_BUILD -DGKD350H_INPUT_BUG -DIPU_SCALING -O0 -g3 -Wall
-INCLUDES   = -I${PREFIX}/include `sdl-config --cflags`
-LIBS       = -L${PREFIX}/lib `sdl-config --libs` -lz -lm -pthread
+# Platform specific definitions
+
+VPATH      	+= .. ../SDL ../linux ../tremor
+CFLAGS		+= -DTRIMUI_BUILD -Ofast -marm -march=armv5te -mtune=arm926ej-s
+CFLAGS		+= -fdata-sections -ffunction-sections -fno-PIC -flto -fno-math-errno
+INCLUDES   	= 
+
+#LIBS		= -nodefaultlibs
+LIBS    	+= -lc -lgcc -lSDL -lasound -lz -lm -lbz2 -pthread -Wl,--sort-common,--as-needed,--gc-sections -flto -s
+
+ifeq ($(PROFILE), YES)
+LIBS 		+= -lgcov
+endif
 
 # Compilation:
 
 .SUFFIXES: .c .S
 
 %.o: %.c
-	${CC} ${CFLAGS} ${INCLUDES} -c -o $@ $<
+	$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $< $(LIBS)
 
 %.o: %.S
-	${AS} -o $@ $<
+	$(AS) ${CFLAGS} -c -o $@ $<
 
-all:	${OBJS}
-	${CC} ${OBJS} ${LIBS} -o ${BIN}  
+all:	$(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o $(BIN) $(LIBS)
+	${STRIP} ${BIN}
 
 clean:
-	rm -f *.o ${BIN} 
-
+	rm -f *.o $(BIN) 

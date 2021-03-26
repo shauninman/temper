@@ -2,23 +2,23 @@
 #include "SDL_event.h"
 
 u32 sdl_to_config_map[MAX_CONTROLS] =
-{
-	SDLK_UP,
-	SDLK_DOWN,
-	SDLK_LEFT,
-	SDLK_RIGHT,
-	SDLK_LCTRL,
-	SDLK_LALT,
-	SDLK_LSHIFT,
-	SDLK_SPACE,
-	SDLK_TAB,
-	SDLK_BACKSPACE,
-	SDLK_RETURN,
-	SDLK_ESCAPE,
-	SDLK_PAGEUP,
-	SDLK_PAGEDOWN,
-	SDLK_KP_DIVIDE,
-	SDLK_KP_PERIOD
+{	//for TRIMUI
+	SDLK_UP,	// UP
+	SDLK_DOWN,	// DOWN
+	SDLK_LEFT,	// LEFT
+	SDLK_RIGHT,	// RIGHT
+	SDLK_SPACE,	// I		A
+	SDLK_LCTRL,	// II		B
+	SDLK_LSHIFT,	// III		X
+	SDLK_LALT,	// IV		Y
+	SDLK_TAB,	// V		L
+	SDLK_BACKSPACE,	// VI		R
+	SDLK_RETURN,	// RUN		START
+	SDLK_RCTRL,	// SELECT	SELECT
+	SDLK_PAGEUP,	// NONE
+	SDLK_PAGEDOWN,	// NONE
+	SDLK_KP_DIVIDE,	// NONE
+	SDLK_KP_PERIOD	// NONE
 };
 
 u32 key_map(u32 keys)
@@ -173,7 +173,8 @@ u32 update_input(event_input_struct *event_input)
 
         switch(event.key.keysym.sym)
         {
-			case SDLK_END:
+			case SDLK_ESCAPE:
+			//case SDLK_END:
 			//case SDLK_HOME:
 			event_input->config_button_action = CONFIG_BUTTON_MENU;
             //event_input->key_action = KEY_ACTION_QUIT;
@@ -331,7 +332,7 @@ gui_action_type key_map_gui_action(u32 key)
 {
   switch(key)
   {
-    case SDLK_ESCAPE:
+    case SDLK_RCTRL:		// SELECT
       return CURSOR_EXIT;
 
     case SDLK_DOWN:
@@ -346,17 +347,18 @@ gui_action_type key_map_gui_action(u32 key)
     case SDLK_RIGHT:
       return CURSOR_RIGHT;
 
-    case SDLK_RETURN:
-    case SDLK_LCTRL:
+//	TRIMUI
+    case SDLK_RETURN:		// START
+    case SDLK_SPACE:		// A
       return CURSOR_SELECT;
 
-    case SDLK_LALT:
+    case SDLK_LCTRL:		// B
       return CURSOR_BACK;
 
-    case SDLK_PAGEUP:
+    case SDLK_TAB:		// L
       return CURSOR_PAGE_UP;
 
-    case SDLK_PAGEDOWN:
+    case SDLK_BACKSPACE:	// R
       return CURSOR_PAGE_DOWN;
   }
 

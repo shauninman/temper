@@ -7,9 +7,9 @@ typedef enum
 {
   SCALE_FULLSCREEN,
   SCALE_1x,
-  SCALE_2x,
-  SCALE_3x,
-  SCALE_4x
+//  SCALE_2x,
+//  SCALE_3x,
+//  SCALE_4x
 } scale_type_enum;
 
 #endif

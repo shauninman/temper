@@ -159,6 +159,7 @@ void set_screen_resolution(u32 width, u32 height, u32 game)
 
 #ifndef IPU_SCALING
 	screen = SDL_SetVideoMode(RESOLUTION_WIDTH, RESOLUTION_HEIGHT, 16, SDL_HWSURFACE);
+//	screen = SDL_SetVideoMode(RESOLUTION_WIDTH, RESOLUTION_HEIGHT, 16, SDL_SWSURFACE);	//SWSURFACE TEST
 #else
 	screen = SDL_SetVideoMode(width, height, 16, SDL_HWSURFACE
 #ifdef SDL_TRIPLEBUF

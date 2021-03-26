@@ -57,7 +57,7 @@ typedef signed long long int s64;
 #ifdef OGG_SUPPORT
 
 #ifdef OGG_TREMOR
-#include <tremor/ivorbisfile.h>
+#include "tremor/ivorbisfile.h"
 #else
 #include <vorbis/vorbisfile.h>
 #endif

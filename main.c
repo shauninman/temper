@@ -1143,7 +1143,8 @@ s32 save_screenshot(u16 *snapshot)
   u32 x, y;
   u16 current_pixel;
   u16 *bmp_offset;
-  u8 *screenshot_buffer = malloc((320 * 240 * 2) + (26 * 2));
+//  u8 *screenshot_buffer = malloc((320 * 240 * 2) + (26 * 2));
+  u8 *screenshot_buffer = malloc((320 * 240 * 2) + (27 * 2));
 
   struct stat sb;
 
