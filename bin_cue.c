@@ -218,11 +218,7 @@ s32 wav_seek(FILE *wav_file, wav_info_struct *wav_info, u32 offset)
 // Returns what the size would be if it were 44.1KHz, stereo, 16bit
 s32 wav_size(FILE *wav_file, wav_info_struct *wav_info)
 {
-  u32 raw_size = ftell(wav_file);
-  fseek(wav_file, 0, SEEK_END);
-  raw_size = ftell(wav_file);
-  fseek(wav_file, 0, SEEK_SET);
-  raw_size -= 44;
+  u32 raw_size = wav_info->data_size;
 
   if(wav_info->channels == 1)
     raw_size *= 2;
