@@ -149,10 +149,10 @@ void set_screen_resolution(u32 width, u32 height, u32 game)
     if(screen != NULL)
     {
 #ifdef IPU_SCALING
-		SDL_SoftStretch(screen, NULL, menu_screen, NULL);
+	SDL_SoftStretch(screen, NULL, menu_screen, NULL);
 #else
-	  old_pixels = malloc((width * height) * 2);
-      copy_screen(old_pixels, width, height);
+	old_pixels = malloc((width * height) * 2);
+	copy_screen(old_pixels, width, height);
 #endif
       SDL_FreeSurface(screen);
     }
