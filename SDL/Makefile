@@ -53,4 +53,4 @@ all:	$(OBJS)
 	${STRIP} ${BIN}
 
 clean:
-	rm -f *.o $(BIN) 
+	cd ../ && rm -rf *.o $(BIN)
