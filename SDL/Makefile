@@ -1,5 +1,7 @@
 # PCE emulator makefile
 # Gilead Kutnick - Exophase
+#PROFILE=YES
+#PROFILE=APPLY
 
 # Global definitions
 CROSS_COMPILE := /opt/trimui-toolchain/bin/arm-buildroot-linux-gnueabi-
@@ -15,12 +17,11 @@ OBJS      = ../main.o ../cpu.o ../memory.o ../irq.o ../io.o ../video.o ../timer.
             ../tremor/info.o ../tremor/mapping0.o ../tremor/mdct.o ../tremor/registry.o ../tremor/res012.o ../tremor/sharedbook.o \
             ../tremor/synthesis.o ../tremor/vorbisfile.o ../tremor/window.o
 BIN       ?= temper 
-PROFILE = 0
 
 ifeq ($(PROFILE), YES)
 CFLAGS 		+= -fprofile-generate -fprofile-dir=/mnt/SDCARD/profile/temper
 else ifeq ($(PROFILE), APPLY)
-CFLAGS		+= -fprofile-use -fbranch-probabilities
+CFLAGS		+= -fprofile-use -fprofile-dir=./profile/ -fbranch-probabilities
 endif
 
 # Platform specific definitions
@@ -28,7 +29,8 @@ endif
 VPATH      	+= .. ../SDL ../linux ../tremor
 CFLAGS		+= -DTRIMUI_BUILD -Ofast -marm -march=armv5te -mtune=arm926ej-s
 CFLAGS		+= -fdata-sections -ffunction-sections -fno-PIC -flto -fno-math-errno
-INCLUDES   	= 
+#for gcc 6.1
+#INCLUDES   	= -I.. -I../SDL -I../linux -I../tremor
 
 #LIBS		= -nodefaultlibs
 LIBS    	+= -lc -lgcc -lSDL -lasound -lz -lm -lbz2 -pthread -Wl,--sort-common,--gc-sections -flto -s
