@@ -23,18 +23,16 @@ char *skip_whitespace(char *str)
 
 wav_info_struct *wav_open(FILE *fp)
 {
-  u8 wav_header[44];
+  u8 wav_header[36];
   u8 *riff_header = wav_header + 0;
   u8 *fmt_header = wav_header + 0x0C;
-  u8 *data_header = wav_header + 0x24;
   wav_info_struct *wav_info;
 
-  fread(wav_header, 44, 1, fp);
+  fread(wav_header, 36, 1, fp);
   // RIFF type chunk
   if(strncmp((char *)riff_header + 0x00, "RIFF", 4) ||
    strncmp((char *)riff_header + 0x08, "WAVE", 4) ||
    strncmp((char *)fmt_header + 0x00, "fmt ", 4) ||
-   strncmp((char *)data_header + 0x00, "data", 4) ||
    (address16(fmt_header, 0x08) != 1))
   {
     printf("rejected wave file: bad header\n");
@@ -45,7 +43,6 @@ wav_info_struct *wav_open(FILE *fp)
   wav_info->channels = address16(fmt_header, 0x0a);
   wav_info->frequency = address32(fmt_header, 0x0c);
   wav_info->bytes_per_sample = address16(fmt_header, 0x16) / 8;
-  wav_info->data_size = address32(data_header, 0x4);
 
   if(((wav_info->channels * wav_info->bytes_per_sample) !=
    address16(fmt_header, 0x14)) ||
@@ -60,21 +57,22 @@ wav_info_struct *wav_open(FILE *fp)
     return NULL;
   }
 
-  wav_info->frequency_div = 44100 / wav_info->frequency;				// 44100..1 22050..2 11025..4
+  wav_info->frequency_div = 44100 / wav_info->frequency;
 
   printf("loaded wav file, channels: %d, frequency: %d,"
    " bytes per sample: %d\n", wav_info->channels, wav_info->frequency,
    wav_info->bytes_per_sample);
 
   wav_info->bytes_per_sector =
-   588 * wav_info->channels * wav_info->bytes_per_sample / wav_info->frequency_div;	// 44100..2352 22050..1176 11025..588
+   588 * wav_info->channels * wav_info->bytes_per_sample *
+   wav_info->frequency_div / 4;
 
   return wav_info;
 }
 
-#define frequency_div_11025 4
+#define frequency_div_11025 1
 #define frequency_div_22050 2
-#define frequency_div_44100 1
+#define frequency_div_44100 4
 
 #define decode_wav_setup_variables_mono(frequency)                            \
   const u32 sample_pairs_per_sector =                                         \
@@ -106,7 +104,7 @@ wav_info_struct *wav_open(FILE *fp)
 
 #define decode_wav_to_output_pair(offset)                                     \
   buffer[sample_output_index + offset] = l_sample;                            \
-  buffer[sample_output_index + offset + 1] = r_sample                         \
+  buffer[sample_output_index + offset + 1] = l_sample                         \
 
 
 #define decode_wav_to_output_11025()                                          \
@@ -144,7 +142,7 @@ s32 wav_decode_sector(FILE *wav_file, wav_info_struct *wav_info,
   // This is a 4 bit switch factor.
   u32 switch_factor = (wav_info->channels - 1) |
    ((wav_info->bytes_per_sample - 1) << 1) |
-   ((0x4 - wav_info->frequency_div) << 2);		// 44100..3 22050..2 11025..0
+   ((0x4 - wav_info->frequency_div) << 2);
 
   if(switch_factor == 0xF)
   {
@@ -175,24 +173,24 @@ s32 wav_decode_sector(FILE *wav_file, wav_info_struct *wav_info,
       case 0x3:
         decode_wav(16bit, stereo, 11025);
 
-/* not used
       case 0x4:
-      case 0x5:
-      case 0x6:
-      case 0x7:
-        break;
-*/
-      case 0x8:
         decode_wav(8bit, mono, 22050);
 
-      case 0x9:
+      case 0x5:
         decode_wav(8bit, stereo, 22050);
 
-      case 0xA:
+      case 0x6:
         decode_wav(16bit, mono, 22050);
 
-      case 0xB:
+      case 0x7:
         decode_wav(16bit, stereo, 22050);
+
+      case 0x8:
+      case 0x9:
+      case 0xA:
+      case 0xB:
+        // 33075KHz not supported.
+        break;
 
       case 0xC:
         decode_wav(8bit, mono, 44100);
@@ -218,7 +216,11 @@ s32 wav_seek(FILE *wav_file, wav_info_struct *wav_info, u32 offset)
 // Returns what the size would be if it were 44.1KHz, stereo, 16bit
 s32 wav_size(FILE *wav_file, wav_info_struct *wav_info)
 {
-  u32 raw_size = wav_info->data_size;
+  u32 raw_size = ftell(wav_file);
+  fseek(wav_file, 0, SEEK_END);
+  raw_size = ftell(wav_file);
+  fseek(wav_file, 0, SEEK_SET);
+  raw_size -= 44;
 
   if(wav_info->channels == 1)
     raw_size *= 2;
@@ -226,7 +228,17 @@ s32 wav_size(FILE *wav_file, wav_info_struct *wav_info)
   if(wav_info->bytes_per_sample == 1)
     raw_size *= 2;
 
-    raw_size *= wav_info->frequency_div;
+  switch(wav_info->frequency_div)
+  {
+    default:
+    case 1:
+      raw_size *= 4;
+      break;
+
+    case 2:
+      raw_size *= 2;
+      break;
+  }
 
   return raw_size;
 }

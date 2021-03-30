@@ -35,7 +35,6 @@ typedef struct
   u32 frequency_div;
   u32 bytes_per_sample;
   u32 bytes_per_sector;
-  u32 data_size;
 } wav_info_struct;
 
 // w/o OGG support: 23B

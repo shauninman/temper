@@ -5,10 +5,6 @@ SDL_cond *audio_cv;
 
 void audio_callback(void *userdata, Uint8 *stream, int length)
 {
-#ifdef TRIMUI_BUILD
-  if (((audio.buffer_index - audio.buffer_base) % AUDIO_BUFFER_SIZE) < length) return;	// TRIMUI: to prevent freeze when underrun
-#endif
-
   u32 sample_length = length / 2;
   u32 _length;
   s16 *stream_base = (s16 *)stream;
@@ -19,14 +15,12 @@ void audio_callback(void *userdata, Uint8 *stream, int length)
 
   SDL_LockMutex(audio_mutex);
 
-#ifndef TRIMUI_BUILD
   while(((audio.buffer_index - audio.buffer_base) %
    AUDIO_BUFFER_SIZE) < length)
   {
     // Pump remaining cycles if you can.
     SDL_CondWait(audio_cv, audio_mutex);
   }
-#endif
 
   if(config.enable_sound)
   {

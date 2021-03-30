@@ -20,7 +20,7 @@ PROFILE = 0
 ifeq ($(PROFILE), YES)
 CFLAGS 		+= -fprofile-generate -fprofile-dir=/mnt/SDCARD/profile/temper
 else ifeq ($(PROFILE), APPLY)
-CFLAGS		+= -fprofile-use -fprofile-dir=./profile/ -fbranch-probabilities
+CFLAGS		+= -fprofile-use -fbranch-probabilities
 endif
 
 # Platform specific definitions

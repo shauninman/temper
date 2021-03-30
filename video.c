@@ -767,8 +767,8 @@ void vce_control_write(u32 value)
   if(config.sgx_mode)
     vdc_update_width(&vdc_b);
     
+	frame_counter_offset = vdc_a.vds + vdc_a.vsw;
 #ifdef IPU_SCALING
-	frame_counter_offset = vdc_a.vds + vdc_a.vsw;	// 210328 Fixed for non_IPU
 	u32 height;
 	#ifdef CRC_CHECK
 	if (height_crop > 0)

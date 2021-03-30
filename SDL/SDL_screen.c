@@ -149,20 +149,17 @@ void set_screen_resolution(u32 width, u32 height, u32 game)
     if(screen != NULL)
     {
 #ifdef IPU_SCALING
-	SDL_SoftStretch(screen, NULL, menu_screen, NULL);
+		SDL_SoftStretch(screen, NULL, menu_screen, NULL);
 #else
-	old_pixels = malloc((width * height) * 2);
-	copy_screen(old_pixels, width, height);
+	  old_pixels = malloc((width * height) * 2);
+      copy_screen(old_pixels, width, height);
 #endif
       SDL_FreeSurface(screen);
     }
 
 #ifndef IPU_SCALING
-#ifndef	TRIMUI_BUILD
 	screen = SDL_SetVideoMode(RESOLUTION_WIDTH, RESOLUTION_HEIGHT, 16, SDL_HWSURFACE);
-#else
-	screen = SDL_SetVideoMode(RESOLUTION_WIDTH, RESOLUTION_HEIGHT, 16, SDL_SWSURFACE);	//SWSURFACE for TRIMUI
-#endif
+//	screen = SDL_SetVideoMode(RESOLUTION_WIDTH, RESOLUTION_HEIGHT, 16, SDL_SWSURFACE);	//SWSURFACE TEST
 #else
 	screen = SDL_SetVideoMode(width, height, 16, SDL_HWSURFACE
 #ifdef SDL_TRIPLEBUF
