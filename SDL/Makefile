@@ -3,19 +3,19 @@
 #PROFILE=YES
 #PROFILE=APPLY
 
-# Global definitions
+# Global definitions	gcc4.8 is faster
 CROSS_COMPILE := /opt/trimui-toolchain/bin/arm-buildroot-linux-gnueabi-
 AS        = $(CROSS_COMPILE)gcc
 CC        = $(CROSS_COMPILE)gcc
 STRIP     = $(CROSS_COMPILE)strip --strip-all --remove-section=.comment --remove-section=.note
 
-OBJS      = ../main.o ../cpu.o ../memory.o ../irq.o ../io.o ../video.o ../timer.o ../psg.o ../disasm.o \
-            ../screen.o ../event.o ../audio.o ../menu.o ../debug.o ../cd.o ../adpcm.o ../netplay.o \
-            ../arcade_card.o ../bin_cue.o \
-            SDL_main.o SDL_screen.o SDL_event.o SDL_menu.o SDL_audio.o ../crc32.o \
-            ../tremor/bitwise.o ../tremor/block.o ../tremor/codebook.o ../tremor/floor0.o ../tremor/floor1.o ../tremor/framing.o \
-            ../tremor/info.o ../tremor/mapping0.o ../tremor/mdct.o ../tremor/registry.o ../tremor/res012.o ../tremor/sharedbook.o \
-            ../tremor/synthesis.o ../tremor/vorbisfile.o ../tremor/window.o
+OBJS      = main.o cpu.o memory.o irq.o io.o video.o timer.o psg.o disasm.o    \
+            screen.o event.o audio.o menu.o debug.o cd.o adpcm.o netplay.o     \
+            arcade_card.o bin_cue.o                                         \
+            SDL_main.o SDL_screen.o SDL_event.o SDL_menu.o SDL_audio.o crc32.o \
+			bitwise.o block.o codebook.o floor0.o floor1.o framing.o \
+			info.o mapping0.o mdct.o registry.o res012.o sharedbook.o \
+			synthesis.o vorbisfile.o window.o
 BIN       ?= temper 
 
 ifeq ($(PROFILE), YES)
@@ -30,7 +30,7 @@ VPATH      	+= .. ../SDL ../linux ../tremor
 CFLAGS		+= -DTRIMUI_BUILD -Ofast -marm -march=armv5te -mtune=arm926ej-s
 CFLAGS		+= -fdata-sections -ffunction-sections -fno-PIC -flto -fno-math-errno
 #for gcc 6.1
-#INCLUDES   	= -I.. -I../SDL -I../linux -I../tremor
+INCLUDES   	= -I.. -I../SDL -I../linux -I../tremor
 
 #LIBS		= -nodefaultlibs
 LIBS    	+= -lc -lgcc -lSDL -lasound -lz -lm -lbz2 -pthread -Wl,--sort-common,--gc-sections -flto -s
@@ -55,4 +55,4 @@ all:	$(OBJS)
 	${STRIP} ${BIN}
 
 clean:
-	cd ../ && rm -rf *.o $(BIN)
+	rm -f *.o $(BIN) 
