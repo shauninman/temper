@@ -385,11 +385,17 @@ int main(int argc, char *argv[])
     audio_unpause();
 
 #ifdef TRIMUI_BUILD
-  mmenu = dlopen("libmmenu.so", RTLD_LAZY);
-  if (mmenu) {
-	  printf("Loaded libmmenu.so\n");
-	  fflush(stdout);
-  }
+  	mmenu = dlopen("libmmenu.so", RTLD_LAZY);
+	if (mmenu) {
+		int resume_slot = -1;
+		ResumeSlot_t ResumeSlot = (ResumeSlot_t)dlsym(mmenu, "ResumeSlot");
+		if (ResumeSlot) resume_slot = ResumeSlot();
+		if (resume_slot!=-1) {
+		    char state_name[MAX_PATH];
+		    sprintf(state_name, "%s_%i.svs", config.rom_filename, resume_slot);
+		    load_state(state_name, NULL, 0);
+		}
+	}
 #endif
   
   while(isrunning)
