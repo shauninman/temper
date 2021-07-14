@@ -611,6 +611,7 @@ void save_state(char *file_name, u16 *snapshot)
     file_write_mem_save(savestate_file);
   }
   file_write_mem_close(savestate_file);
+  sync();
 
   status_message("Saved state %d", config.savestate_number);
   free(savestate_buffer);
